@@ -6,7 +6,6 @@ EXE			= $(SOURCES:%.cpp=%.exe)
 else
 EXE			= $(SOURCES:%.cpp=%)
 endif
-OTHER		= action state gamelog.txt
 
 .PHONY: all clean
 
@@ -22,7 +21,7 @@ endif
 
 clean:
 ifeq ($(OS),Windows_NT)
-	del /f $(EXE) $(OTHER)
+	del /f $(EXE)
 else
-	rm -f $(EXE) $(OTHER)
+	rm -f $(EXE)
 endif
