@@ -41,7 +41,11 @@ void write_valid_spot(std::ofstream& fout) {
     Point p = next_valid_spots[index];
     // Remember to flush the output to ensure the last action is written to file.
     fout << p.x << " " << p.y << std::endl;
+    //fout << board[0][0] << " " << board[0][1] << std::endl;
     fout.flush();
+}
+int value(){
+    Point now =
 }
 
 int main(int, char** argv) {
