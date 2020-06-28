@@ -212,7 +212,6 @@ void write_valid_spot(std::ofstream& fout) {
             else if((x==7&&y==7)||board[7][7]==player)
                 mevaluebase[7][6]=mevaluebase[6][7]=mevaluebase[6][6]=8;
 
-            mebase=mevaluebase[x][y];
             enemymap1[x][y]=player;
             player=player-3;
             for(int a=0;a<8;a++){

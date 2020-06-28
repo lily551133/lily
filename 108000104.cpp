@@ -229,7 +229,7 @@ int heuristic(int board[][8],int x,int y)
 }
 
 int minimaxValue(int board[][8], int x,int y,int searchPly){
-    if (searchPly == 1 ) {// Change to desired ply lookahead{
+    if (searchPly == 3 ) {// Change to desired ply lookahead{
         return heuristic(board,x,y );
     }
     int n_valid_spots = next_valid_spots.size();

@@ -141,6 +141,24 @@ std::vector<Point> get_valid_spots()  {
         return valid_spots;
     }
 
+
+/*
+#include <iostream>
+#include <fstream>
+#include <array>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+struct Point {
+    int x, y;
+};
+
+int player;
+const int SIZE = 8;
+std::array<std::array<int, SIZE>, SIZE> board;
+std::vector<Point> next_valid_spots;
+*/
 void read_board(std::ifstream& fin) {
     fin >> player;
     for (int i = 0; i < SIZE; i++) {
@@ -165,8 +183,8 @@ int In_Board(int x, int y){
     else
         return 0;
 }
-int Check_Straight_Army(int x, int y, int d){
-    int me = player;
+int Check_Straight_Army(int x, int y, int d, int ma){
+    int me = ma;
     int army = 3 - me;
     int army_count=0;
     int found_flag=0;
@@ -203,63 +221,15 @@ int Check_Straight_Army(int x, int y, int d){
 
     else return 0;
 }
-int evaluate(int board[][8],int x,int y){
-    int ans;
-    //if(me==player){
-            for(int i=0;i<8;i++){
-                for(int j=0;j<8;j++){
-                    if(board[i][j]==1)
-                        ans=ans+valuebase[i][j]*3;
-                }
-               // ans= ans+Check_Straight_Army(x,y,i,ma);
-               //ans= ans+Check_Straight_Army(x,y,i)*2;
-            }
-            return ans;
-    }
-int heuristic(int board[][8],int x,int y)
-{
-   // return evaluate(board,x,y);
-    //return valuebase[x][y];
 
-    int ans=0;
-        for(int i=0;i<8;i++)
-        ans=ans+Check_Straight_Army(x,y,i);
-        return ans*4+valuebase[x][y];
 
-}
 
-int minimaxValue(int board[][8], int x,int y,int searchPly){
-    if (searchPly == 1 ) {// Change to desired ply lookahead{
-        return heuristic(board,x,y );
-    }
-    int n_valid_spots = next_valid_spots.size();
-    if (n_valid_spots == 0) // if no moves skip to next player's turn
-    {return minimaxValue(board,x,y,searchPly + 1);}
-    //min
-    int bestMoveVal = -99999;
-            for (int i = 0; i < n_valid_spots; i++){
-               int  tempBoard[8][8];
-                for(int a=0;a<8;a++){
-                    for(int b=0;b<8;b++){
-                        tempBoard[a][b]= board[a][b];
-                    }
-                }
-                Point p = next_valid_spots[i];
-                if(searchPly%2==0)
-                    tempBoard[p.x][p.y]=player;
-                else
-                    tempBoard[p.x][p.y]=3-player;
-                int val = minimaxValue(tempBoard,p.x,p.y,searchPly + 1);
+int evaluate(int x,int y,int ma){
+    int me,en;
+    int cont;
+    if(ma==1){
 
-                   if (val > bestMoveVal)
-                    bestMoveVal = val;
-            }
-        return bestMoveVal;
-}
-void write_valid_spot(std::ofstream& fout) {
-    srand(time(NULL));
-    //int moveX[60], moveY[60];
-     if(board[0][0]==player)
+    if(board[0][0]==player)
                 valuebase[1][0]=valuebase[0][1]=valuebase[1][1]=8;
             else if(board[7][0]==player)
                 valuebase[6][0]=valuebase[7][1]=valuebase[6][1]=8;
@@ -268,34 +238,99 @@ void write_valid_spot(std::ofstream& fout) {
             else if(board[7][7]==player)
                 valuebase[7][6]=valuebase[6][7]=valuebase[6][6]=8;
 
-    int opponent = 3-player;
-    int n_valid_spots = next_valid_spots.size();
-    int x,y;
-        Point p1 = next_valid_spots[0];
-        int bestMoveVal = -99999;
-        int bestX =p1.x, bestY = p1.y;
-        int val=0;
-        for (int i = 0; i < n_valid_spots; i++)
-        {
-            int tempBoard[8][8];
-            for(int a=0;a<8;a++){
-                for(int b=0;b<8;b++){
-                   tempBoard[a][b]= board[a][b];
-                }
+                //return valuebase[x][y];*/
+            int ans=0;
+            for(int i=0;i<8;i++){
+                ans= ans+Check_Straight_Army(x,y,i,ma);
             }
-            Point p = next_valid_spots[i];
-            tempBoard[p.x][p.y]= player;
-            val = minimaxValue(tempBoard,p.x,p.y ,1);
-            if (val > bestMoveVal){
-                bestMoveVal = val;
-                bestX = p.x;
-                bestY = p.y;
-            }
-        }
-        x = bestX;
-        y = bestY;
+            return (ans+valuebase[x][y]*10);
+                //return ans;
+    }
 
-    fout << x << " " << y << std::endl;
+    else{
+        if(board[0][0]==3-player)
+                envaluebase[1][0]=envaluebase[0][1]=envaluebase[1][1]=8;
+            else if(board[7][0]==3-player)
+                envaluebase[6][0]=envaluebase[7][1]=envaluebase[6][1]=8;
+            else if(board[0][7]==3-player)
+                envaluebase[0][6]=envaluebase[1][7]=envaluebase[1][6]=8;
+            else if(board[7][7]==3-player)
+                envaluebase[7][6]=envaluebase[6][7]=envaluebase[6][6]=8;
+
+                //return -envaluebase[x][y];
+            int ans=0;
+            for(int i=0;i<8;i++){
+                ans= ans+Check_Straight_Army(x,y,i,ma);
+            }
+            return (ans+envaluebase[x][y]*10);
+                //return ans;
+    }
+}
+int minimax(int x,int y, int depth, int a, int b, bool max)
+{
+    int n_valid_spots = next_valid_spots.size();
+    if (depth == 0||n_valid_spots==0) {
+        return evaluate(x,y,max);
+
+    }
+    std::cin ,, "a";
+    if (max) {
+        for (int i=0;i<n_valid_spots;i++) {
+            Point p = next_valid_spots[i];
+                a = std::max(a, minimax(p.x,p.y, depth - 1, a, b, false));
+                if (b <= a)
+                return b;
+        }// £] cutoff.
+        return a;
+    }
+    else {
+        for (int i=0;i<n_valid_spots;i++) {
+           Point p = next_valid_spots[i];
+             b = std::min(b, minimax(p.x,p.y, depth - 1, a, b, true));
+            //if (b <= a)
+              //  return a; // £\ cutoff.
+        }
+        return b;
+        //return b;
+    }
+}
+int negamax(int x,int y, int depth, int a, int b,int play)
+{
+    int n_valid_spots = next_valid_spots.size();
+    if (depth == 0||n_valid_spots==0) {
+        return evaluate(x,y,play);
+    }
+    //std::vector<GameState> possibleMoves;
+    //state.findPossibleMoves(possibleMoves);
+   for (int i=0;i<n_valid_spots;i++) {
+            Point p = next_valid_spots[i];
+        a = std::max(a, -negamax(p.x,p.y, depth - 1, -b, -a,3-player));
+        if (b <= a)
+            return b; // £] cutoff.
+    }
+    return a;
+}
+void write_valid_spot(std::ofstream& fout) {
+    int n_valid_spots = next_valid_spots.size();
+    srand(time(NULL));
+    // Choose random spot. (Not random uniform here)
+    int a=-100;
+    int b=100;
+    int finaly=0,finalx=0;
+    int v=0;
+    for(int i=0;i<n_valid_spots;i++){
+        Point p = next_valid_spots[i];
+        v = minimax(p.x,p.y, 2, a, b, false);
+       //v= negamax(p.x,p.y, 3, a, b,player);
+      // v=evaluate(p.x,p.y,1);
+        if (v > a) {
+            a = v;
+            finalx=p.x;
+            finaly=p.y;
+
+        }
+    }
+    fout << finalx << " " << finaly << std::endl;
             fout.flush();
 
 }
